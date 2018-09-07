@@ -1,18 +1,11 @@
 package tafuta
 
 import (
-	"net/http"
 	"syscall/js"
 )
 
 func FetchValue() js.Value {
 	return js.Global().Get("fetch")
-}
-
-type Transport struct{}
-
-func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
-	return nil, nil
 }
 
 // Header is a wrapper of javascript Headers
@@ -88,32 +81,15 @@ func (c RequestCache) String() string {
 	}
 }
 
-type Credentials uint
+type RequestCredentials uint
 
 const (
-	OmitCredential Credentials = 1 << iota
+	OmitCredential RequestCredentials = 1 << iota
 	SameOrigin
 	Include
 )
 
-type RequestMode string
-
-const (
-	SameOriginMode RequestMode = "same-origin"
-	NoCORSMode     RequestMode = "no-cors"
-	CORSMode       RequestMode = "cors"
-	NavigateMode   RequestMode = "navigate"
-)
-
-type RequestRedirect string
-
-const (
-	FollowRedirect RequestRedirect = "follow"
-	ErrorRedirect  RequestRedirect = "error"
-	ManualRedirect RequestRedirect = "manual"
-)
-
-func (c Credentials) String() string {
+func (c RequestCredentials) String() string {
 	switch c {
 	case OmitCredential:
 		return "omit"
@@ -121,6 +97,51 @@ func (c Credentials) String() string {
 		return "same-origin"
 	case Include:
 		return "include"
+	default:
+		return ""
+	}
+}
+
+type RequestMode uint
+
+const (
+	SameOriginMode RequestMode = 1 << iota
+	NoCORSMode
+	CORSMode
+	NavigateMode
+)
+
+func (m RequestMode) String() string {
+	switch m {
+	case SameOriginMode:
+		return "same-origin"
+	case NoCORSMode:
+		return "no-cors"
+	case CORSMode:
+		return "cors"
+	case NavigateMode:
+		return "navigate"
+	default:
+		return ""
+	}
+}
+
+type RequestRedirect uint
+
+const (
+	FollowRedirect RequestRedirect = 1 << iota
+	ErrorRedirect
+	ManualRedirect
+)
+
+func (r RequestRedirect) String() string {
+	switch r {
+	case FollowRedirect:
+		return "follow"
+	case ErrorRedirect:
+		return "error"
+	case ManualRedirect:
+		return "manual"
 	default:
 		return ""
 	}
@@ -153,7 +174,7 @@ func (i *Iterator) Range(fn func(js.Value) bool) {
 
 type Request struct {
 	Cache       RequestCache
-	Credentials Credentials
+	Credentials RequestCredentials
 	Method      string
 	Mode        RequestMode
 	Redirect    RequestRedirect
