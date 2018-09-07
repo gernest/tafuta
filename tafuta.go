@@ -57,3 +57,104 @@ func (h *Header) Set(key, value string) {
 func (h *Header) Value() js.Value {
 	return h.value
 }
+
+type RequestCache uint
+
+const (
+	DefaultCache RequestCache = 1 << iota
+	NoStore
+	Reload
+	NoCache
+	ForceCache
+	OnlyIfCached
+)
+
+func (c RequestCache) String() string {
+	switch c {
+	case DefaultCache:
+		return "default"
+	case NoStore:
+		return "no-store"
+	case Reload:
+		return "reload"
+	case NoCache:
+		return "no-cache"
+	case ForceCache:
+		return "force-cache"
+	case OnlyIfCached:
+		return "only-if-cached"
+	default:
+		return ""
+	}
+}
+
+type Credentials uint
+
+const (
+	OmitCredential Credentials = 1 << iota
+	SameOrigin
+	Include
+)
+
+type RequestMode string
+
+const (
+	SameOriginMode RequestMode = "same-origin"
+	NoCORSMode     RequestMode = "no-cors"
+	CORSMode       RequestMode = "cors"
+	NavigateMode   RequestMode = "navigate"
+)
+
+type RequestRedirect string
+
+const (
+	FollowRedirect RequestRedirect = "follow"
+	ErrorRedirect  RequestRedirect = "error"
+	ManualRedirect RequestRedirect = "manual"
+)
+
+func (c Credentials) String() string {
+	switch c {
+	case OmitCredential:
+		return "omit"
+	case SameOrigin:
+		return "same-origin"
+	case Include:
+		return "include"
+	default:
+		return ""
+	}
+}
+
+type Iterator struct {
+	js.Value
+}
+
+func (i *Iterator) Next() (done bool, value js.Value) {
+	v := i.Get("next")
+	done = v.Get("done").Bool()
+	value = v.Get("value")
+	return
+}
+
+// Range iterates over items and calling fn for every value. This will stop when
+// fn returns false.
+func (i *Iterator) Range(fn func(js.Value) bool) {
+	for {
+		done, value := i.Next()
+		if done {
+			return
+		}
+		if !fn(value) {
+			return
+		}
+	}
+}
+
+type Request struct {
+	Cache       RequestCache
+	Credentials Credentials
+	Method      string
+	Mode        RequestMode
+	Redirect    RequestRedirect
+}
