@@ -4,6 +4,6 @@ import (
 	"syscall/js"
 )
 
-func FatchValue() js.Value {
+func FetchValue() js.Value {
 	return js.Global().Get("fetch")
 }
