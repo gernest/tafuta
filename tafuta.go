@@ -1,6 +1,7 @@
 package tafuta
 
 import (
+	"io"
 	"syscall/js"
 )
 
@@ -147,6 +148,72 @@ func (r RequestRedirect) String() string {
 	}
 }
 
+type RequestDestination uint
+
+const (
+	Audio RequestDestination = 1 << iota
+	AudioWorklet
+	Document
+	Embed
+	Font
+	Image
+	Manifest
+	Object
+	PaintWorklet
+	Report
+	Script
+	ServiceWorker
+	SharedWorker
+	Style
+	Track
+	Video
+	Worker
+	XSLT
+)
+
+func (d RequestDestination) String() string {
+	switch d {
+	case Audio:
+		return "audio"
+	case AudioWorklet:
+		return "audioworklet"
+	case Document:
+		return "document"
+	case Embed:
+		return "embed"
+	case Font:
+		return "font"
+	case Image:
+		return "image"
+	case Manifest:
+		return "manifest"
+	case Object:
+		return "object"
+	case PaintWorklet:
+		return "paintworklet"
+	case Report:
+		return "report"
+	case Script:
+		return "script"
+	case ServiceWorker:
+		return "serviceworker"
+	case SharedWorker:
+		return "sharedworker"
+	case Style:
+		return "style"
+	case Track:
+		return "track"
+	case Video:
+		return "video"
+	case Worker:
+		return "worker"
+	case XSLT:
+		return "xslt"
+	default:
+		return ""
+	}
+}
+
 type Iterator struct {
 	js.Value
 }
@@ -173,9 +240,15 @@ func (i *Iterator) Range(fn func(js.Value) bool) {
 }
 
 type Request struct {
-	Cache       RequestCache
-	Credentials RequestCredentials
-	Method      string
-	Mode        RequestMode
-	Redirect    RequestRedirect
+	Cache         RequestCache
+	Credentials   RequestCredentials
+	Destination   RequestDestination
+	Header        *Header
+	Integrity     string
+	Method        string
+	Mode          RequestMode
+	Redirect      RequestRedirect
+	Referer       string
+	RefererPolicy string
+	Body          io.Reader
 }
