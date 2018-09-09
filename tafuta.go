@@ -72,6 +72,46 @@ func (h *Header) Value() js.Value {
 // 	if err != nil {
 // 		// handle error
 // 	}
+//
+// Download a resource with cache busting, but update the HTTP
+// cache with the downloaded resource.
+//
+// 	client := tafuta.NewClient()
+// 	res, err := client.Do(&tafuta.Request{
+// 		URL:   "some.json",
+// 		Cache: tafuta.Reload,
+// 	})
+// 	if err != nil {
+// 		// handle error
+// 	}
+//
+// Download a resource with cache busting when dealing with a
+// properly configured server that will send the correct ETag
+// and Date headers and properly handle If-Modified-Since and
+// If-None-Match request headers, therefore we can rely on the
+// validation to guarantee a fresh response.
+//
+// 	client := tafuta.NewClient()
+// 	res, err := client.Do(&tafuta.Request{
+// 		URL:   "some.json",
+// 		Cache: tafuta.NoCache,
+// 	})
+// 	if err != nil {
+// 		// handle error
+// 	}
+//
+// Download a resource with economics in mind!  Prefer a cached
+// albeit stale response to conserve as much bandwidth as possible.
+//
+// 	client := tafuta.NewClient()
+// 	res, err := client.Do(&tafuta.Request{
+// 		URL:   "some.json",
+// 		Cache: tafuta.ForceCache,
+// 	})
+// 	if err != nil {
+// 		// handle error
+// 	}
+//
 type RequestCache uint
 
 const (
