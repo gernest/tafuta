@@ -427,6 +427,9 @@ func (c *Client) Do(req *Request) (res *Response, err error) {
 	if cache := req.Cache.String(); cache != "" {
 		opts["cache"] = cache
 	}
+	if redirect := req.Redirect.String(); redirect != "" {
+		opts["redirect"] = redirect
+	}
 	done := make(chan struct{})
 	if req.Body != nil {
 		b, err := ioutil.ReadAll(req.Body)
