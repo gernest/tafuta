@@ -11,7 +11,7 @@ var global = js.Global()
 
 // FetchValue returns global javascript fetch function.
 func FetchValue() js.Value {
-	return js.Global().Get("fetch")
+	return global.Get("fetch")
 }
 
 // Header is a wrapper of javascript Headers
