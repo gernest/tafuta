@@ -57,9 +57,23 @@ func (h *Header) Value() js.Value {
 	return h.value
 }
 
+// RequestCache defines modes for cache. This denines ho w the request will
+// interact with browser HTTP cache.
 type RequestCache uint
 
 const (
+	// DefaultCache in this mode the browser looks for a matching request in its
+	// HTTP cache.
+	//
+	// 	If there is a match and it is fresh, it will be returned from the cache.
+	//
+	// 	If there is a match but it is stale, the browser will make a conditional
+	// 	request to the remote server. If the server indicates that the resource has
+	// 	not changed, it will be returned from the cache. Otherwise the resource will
+	// 	be downloaded from the server and the cache will be updated.
+	//
+	// 	If there is no match, the browser will make a normal request, and will
+	// 	update the cache with the downloaded resource.
 	DefaultCache RequestCache = 1 << iota
 	NoStore
 	Reload
