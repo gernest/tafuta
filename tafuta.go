@@ -1,6 +1,7 @@
 package tafuta
 
 import (
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/url"
@@ -412,6 +413,9 @@ func (c *Client) Do(req *Request) (res *Response, err error) {
 	defer func() {
 		if resources != nil {
 			resources.free()
+		}
+		if v := recover(); v != nil {
+			err = fmt.Errorf("%v", v)
 		}
 	}()
 	args := []interface{}{req.URL}
