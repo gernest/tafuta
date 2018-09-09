@@ -57,7 +57,7 @@ func (h *Header) Value() js.Value {
 	return h.value
 }
 
-// RequestCache defines modes for cache. This denines ho w the request will
+// RequestCache defines modes for cache. This defines how the request will
 // interact with browser HTTP cache.
 //
 // Example
