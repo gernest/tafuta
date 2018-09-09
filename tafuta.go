@@ -349,18 +349,22 @@ func (i *Iterator) Range(fn func(js.Value) bool) {
 }
 
 type Request struct {
-	URL           string
-	Cache         RequestCache
-	Credentials   RequestCredentials
-	Destination   RequestDestination
-	Header        *Header
-	Integrity     string
-	Method        string
-	Mode          RequestMode
-	Redirect      RequestRedirect
-	Referer       string
-	RefererPolicy string
-	Body          io.Reader
+	URL         string
+	Cache       RequestCache
+	Credentials RequestCredentials
+	Destination RequestDestination
+	Header      *Header
+	Method      string
+	Mode        RequestMode
+	Redirect    RequestRedirect
+
+	// Can either be no-referrer, client, or a URL. The default is client.
+	Referer string
+
+	// Contains the subresource integrity value of the request (e.g.,
+	// sha256-BpfBw7ivV8q2jLiT13fxDYAe2tJllusRSZ273h2nFSE=).
+	Integrity string
+	Body      io.Reader
 }
 type ResponseType uint
 
@@ -429,6 +433,12 @@ func (c *Client) Do(req *Request) (res *Response, err error) {
 	}
 	if redirect := req.Redirect.String(); redirect != "" {
 		opts["redirect"] = redirect
+	}
+	if req.Referer != "" {
+		opts["referrer"] = req.Referer
+	}
+	if req.Integrity != "" {
+		opts["integrity"] = req.Integrity
 	}
 	done := make(chan struct{})
 	if req.Body != nil {
