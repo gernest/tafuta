@@ -7,6 +7,8 @@ import (
 	"syscall/js"
 )
 
+var global = js.Global()
+
 func FetchValue() js.Value {
 	return js.Global().Get("fetch")
 }
@@ -311,6 +313,7 @@ func (c *Client) Do(req *Request) (res *Response, err error) {
 	if req.Header != nil {
 		opts["headers"] = req.Header.Value()
 	}
+	done := make(chan struct{})
 	if req.Body != nil {
 		b, err := ioutil.ReadAll(req.Body)
 		if err != nil {
@@ -318,13 +321,14 @@ func (c *Client) Do(req *Request) (res *Response, err error) {
 		}
 		a := js.TypedArrayOf(b)
 		resources = append(resources, a)
-		blob := js.Global().Get("Blob").New(a)
-		opts["body"] = blob
+		opts["body"] = a
+	}
+	if len(opts) > 0 {
+		args = append(args, opts)
 	}
 	request := js.Global().Get("Request").New(args...)
-	done := make(chan struct{})
 	responseCallback := js.NewCallback(func(v []js.Value) {
-		js.Global().Get("console").Call("log", v[0])
+		console(v[0])
 		done <- struct{}{}
 	})
 	r := c.value.Invoke(request)
@@ -344,4 +348,8 @@ func (r resourceList) free() {
 	for _, v := range r {
 		v.Release()
 	}
+}
+
+func console(v js.Value) {
+	global.Get("console").Call("log", v)
 }
