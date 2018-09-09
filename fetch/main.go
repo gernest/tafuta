@@ -1,17 +1,18 @@
 package main
 
 import (
-	"fmt"
-	"syscall/js"
+	"bytes"
+	"encoding/json"
 
 	"github.com/gernest/tafuta"
 )
 
 func main() {
-	v := tafuta.FetchValue()
-	fmt.Println(v.Type())
-	h := tafuta.NewHeader()
-	h.Set("Content-Type", "text/xml")
-	js.Global().Set("someHead", h.Value())
-	js.Global().Get("console").Call("log", h.Value())
+	v := tafuta.NewClient()
+	b, _ := json.Marshal([]int{12345})
+	v.Do(&tafuta.Request{
+		URL:    "/nothing",
+		Method: "POST",
+		Body:   bytes.NewReader(b),
+	})
 }
