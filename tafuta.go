@@ -9,6 +9,7 @@ import (
 
 var global = js.Global()
 
+// FetchValue returns global javascript fetch function.
 func FetchValue() js.Value {
 	return js.Global().Get("fetch")
 }
