@@ -418,6 +418,9 @@ func (c *Client) Do(req *Request) (res *Response, err error) {
 	if req.Header != nil {
 		opts["headers"] = req.Header.Value()
 	}
+	if cache := req.Cache.String(); cache != "" {
+		opts["cache"] = cache
+	}
 	done := make(chan struct{})
 	if req.Body != nil {
 		b, err := ioutil.ReadAll(req.Body)
