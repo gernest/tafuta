@@ -421,6 +421,9 @@ func (c *Client) Do(req *Request) (res *Response, err error) {
 	if mode := req.Mode.String(); mode != "" {
 		opts["mode"] = mode
 	}
+	if creds := req.Credentials.String(); creds != "" {
+		opts["credentials"] = creds
+	}
 	if cache := req.Cache.String(); cache != "" {
 		opts["cache"] = cache
 	}
