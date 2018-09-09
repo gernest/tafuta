@@ -59,6 +59,19 @@ func (h *Header) Value() js.Value {
 
 // RequestCache defines modes for cache. This denines ho w the request will
 // interact with browser HTTP cache.
+//
+// Example
+// Download a resource with cache busting, to bypass the cache
+// completely.
+//
+// 	client := tafuta.NewClient()
+// 	res, err := client.Do(&tafuta.Request{
+// 		URL:   "some.json",
+// 		Cache: tafuta.NoStore,
+// 	})
+// 	if err != nil {
+// 		// handle error
+// 	}
 type RequestCache uint
 
 const (
