@@ -459,6 +459,7 @@ func (c *Client) Do(req *Request) (res *Response, err error) {
 		done <- struct{}{}
 	})
 	r := c.value.Invoke(request)
+	resources = append(resources, responseCallback)
 	r.Call("then", responseCallback)
 	<-done
 	return
