@@ -37,7 +37,7 @@ func (h *Header) Del(key string) {
 }
 
 // Get Returns a string of all the values of a header within a
-// Headers object with a given name.
+// Headers object with a given key.
 func (h *Header) Get(key string) string {
 	v := h.value.Get(key)
 	if v.Type() == js.TypeString {
