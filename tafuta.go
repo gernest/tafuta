@@ -418,6 +418,9 @@ func (c *Client) Do(req *Request) (res *Response, err error) {
 	if req.Header != nil {
 		opts["headers"] = req.Header.Value()
 	}
+	if mode := req.Mode.String(); mode != "" {
+		opts["mode"] = mode
+	}
 	if cache := req.Cache.String(); cache != "" {
 		opts["cache"] = cache
 	}
