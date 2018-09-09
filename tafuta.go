@@ -2,6 +2,8 @@ package tafuta
 
 import (
 	"io"
+	"io/ioutil"
+	"net/url"
 	"syscall/js"
 )
 
@@ -240,6 +242,7 @@ func (i *Iterator) Range(fn func(js.Value) bool) {
 }
 
 type Request struct {
+	URL           string
 	Cache         RequestCache
 	Credentials   RequestCredentials
 	Destination   RequestDestination
@@ -251,4 +254,94 @@ type Request struct {
 	Referer       string
 	RefererPolicy string
 	Body          io.Reader
+}
+type ResponseType uint
+
+const (
+	BasicResponse ResponseType = 1 << iota
+	CorsResponse
+	ErrorResponse
+	OpaqueResponse
+	OpaqueRedirectResponse
+)
+
+var respTypMap = map[ResponseType]string{
+	BasicResponse:          "basic",
+	CorsResponse:           "cors",
+	ErrorResponse:          "error",
+	OpaqueResponse:         "opaque",
+	OpaqueRedirectResponse: "opaqueredirect",
+}
+
+func (r ResponseType) String() string {
+	return respTypMap[r]
+}
+
+type Response struct {
+	Headers    *Header
+	Ok         bool
+	Redirected bool
+	Status     int
+	StatusText string
+	Type       ResponseType
+	URL        *url.URL
+	Body       io.ReadCloser
+}
+
+type Client struct {
+	value js.Value
+}
+
+func NewClient() *Client {
+	return &Client{value: FetchValue()}
+}
+
+func (c *Client) Do(req *Request) (res *Response, err error) {
+	var resources resourceList
+	defer func() {
+		if resources != nil {
+			resources.free()
+		}
+	}()
+	args := []interface{}{req.URL}
+	opts := make(map[string]interface{})
+	if req.Method != "" {
+		opts["method"] = req.Method
+	}
+	if req.Header != nil {
+		opts["headers"] = req.Header.Value()
+	}
+	if req.Body != nil {
+		b, err := ioutil.ReadAll(req.Body)
+		if err != nil {
+			return nil, err
+		}
+		a := js.TypedArrayOf(b)
+		resources = append(resources, a)
+		blob := js.Global().Get("Blob").New(a)
+		opts["body"] = blob
+	}
+	request := js.Global().Get("Request").New(args...)
+	done := make(chan struct{})
+	responseCallback := js.NewCallback(func(v []js.Value) {
+		js.Global().Get("console").Call("log", v[0])
+		done <- struct{}{}
+	})
+	r := c.value.Invoke(request)
+	r.Call("then", responseCallback)
+	<-done
+	return
+}
+
+type resource interface {
+	Release()
+}
+
+// Simple helper for releasing multiple resounces.
+type resourceList []resource
+
+func (r resourceList) free() {
+	for _, v := range r {
+		v.Release()
+	}
 }
