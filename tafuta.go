@@ -408,6 +408,8 @@ func NewClient() *Client {
 	return &Client{value: FetchValue()}
 }
 
+// Do sends request using fetch AP. This method is blocking, to avoid
+// deadlocking your app please call this inside a goroutine.
 func (c *Client) Do(req *Request) (res *Response, err error) {
 	var resources resourceList
 	defer func() {
