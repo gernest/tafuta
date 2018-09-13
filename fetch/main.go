@@ -1,18 +1,21 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
-
 	"github.com/gernest/tafuta"
 )
 
 func main() {
-	v := tafuta.NewClient()
-	b, _ := json.Marshal([]int{12345})
-	v.Do(&tafuta.Request{
-		URL:    "/nothing",
-		Method: "POST",
-		Body:   bytes.NewReader(b),
+	client := tafuta.NewClient()
+	h := tafuta.NewHeader()
+	h.Set("Content-Type", "image/jpeg")
+	res, err := client.Do(&tafuta.Request{
+		Method: "GET",
+		URL:    "flowers.jpg",
+		Header: h,
 	})
+	if err != nil {
+		// handle error
+	}
+	println(res.Status)
+
 }

@@ -7,6 +7,20 @@
 // Note that all calls in this package are blocking. So use goroutines and
 // channels for synchronization. The choice of making blocking API is to make it
 // easily integrated with existing go libraries/API's.
+//
+// This is how you send a GET request with header
+// 	client := tafuta.NewClient()
+// 	h := tafuta.NewHeader()
+// 	h.Set("Content-Type", "image/jpeg")
+// 	res, err := client.Do(&tafuta.Request{
+// 		Method: "GET",
+// 		URL:    "flowers.jpg",
+// 		Header: h,
+// 	})
+// 	if err != nil {
+// 		// handle error
+// 	}
+// 	println(res.Status)
 package tafuta
 
 import (
