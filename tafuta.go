@@ -1,3 +1,12 @@
+// Package tafuta provide wrapper around the fetch API which allows easy and
+// seamless of making http calls in a go wasm project.
+//
+// This abstracts away the low lever details necessary for interacting with
+// browser's dom. In the process offering familiar API.
+//
+// Note that all calls in this package are blocking. So use goroutines and
+// channels for synchronization. The choice of making blocking API is to make it
+// easily integrated with existing go libraries/API's.
 package tafuta
 
 import (
