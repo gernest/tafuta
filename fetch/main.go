@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/gernest/tafuta"
 )
 
@@ -16,6 +18,5 @@ func main() {
 	if err != nil {
 		// handle error
 	}
-	println(res.Status)
-
+	fmt.Println(res.Text())
 }
