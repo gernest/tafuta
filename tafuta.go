@@ -390,6 +390,7 @@ type Request struct {
 	Integrity string
 	Body      io.Reader
 }
+
 type ResponseType uint
 
 const (
@@ -408,10 +409,20 @@ var respTypMap = map[ResponseType]string{
 	OpaqueRedirectResponse: "opaqueredirect",
 }
 
+var reverseRespTypMap map[string]ResponseType
+
+func init() {
+	reverseRespTypMap = make(map[string]ResponseType)
+	for k, v := range respTypMap {
+		reverseRespTypMap[v] = k
+	}
+}
+
 func (r ResponseType) String() string {
 	return respTypMap[r]
 }
 
+// Response represents a response to a fetch API Request.
 type Response struct {
 	Headers    *Header
 	Ok         bool
@@ -421,6 +432,40 @@ type Response struct {
 	Type       ResponseType
 	URL        *url.URL
 	Body       io.ReadCloser
+	value      js.Value
+}
+
+// NewResponse creates *Response struct from Response js object.
+func NewResponse(v js.Value) (*Response, error) {
+	res := &Response{}
+	res.Headers = &Header{value: v.Get("headers")}
+	res.Ok = v.Get("ok").Bool()
+	res.Status = v.Get("status").Int()
+	res.StatusText = v.Get("statusText").String()
+	resType := v.Get("type").String()
+	res.Type = reverseRespTypMap[resType]
+	u, err := url.Parse(v.Get("url").String())
+	if err != nil {
+		return nil, err
+	}
+	res.URL = u
+	res.value = v
+	return res, nil
+}
+
+// Text returns Response body contents as a string. This is a blocking call,
+// please use this in a separate goroutines to avoid blocking execution of other
+// code.
+func (r *Response) Text() (res string) {
+	done := make(chan struct{})
+	responseCallback := js.NewCallback(func(v []js.Value) {
+		res = v[0].String()
+		done <- struct{}{}
+	})
+	defer responseCallback.Release()
+	r.value.Call("text").Call("then", responseCallback)
+	<-done
+	return
 }
 
 type Client struct {
@@ -484,7 +529,7 @@ func (c *Client) Do(req *Request) (res *Response, err error) {
 	}
 	request := js.Global().Get("Request").New(args...)
 	responseCallback := js.NewCallback(func(v []js.Value) {
-		console(v[0])
+		res, err = NewResponse(v[0])
 		done <- struct{}{}
 	})
 	r := c.value.Invoke(request)
