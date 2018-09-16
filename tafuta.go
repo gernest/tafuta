@@ -468,6 +468,7 @@ func (r *Response) Text() (res string) {
 	return
 }
 
+// Client exposes API for fetching remote resources in a go wasm programs.
 type Client struct {
 	value js.Value
 }
