@@ -473,6 +473,7 @@ type Client struct {
 	value js.Value
 }
 
+// NewClient returns a new Client instance that uses  browser's fetch API.
 func NewClient() *Client {
 	return &Client{value: FetchValue()}
 }
